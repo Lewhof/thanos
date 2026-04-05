@@ -13,7 +13,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInUrl="/thanos/sign-in"
+      signUpUrl="/thanos/sign-up"
+      signInFallbackRedirectUrl="/thanos/dashboard"
+      signUpFallbackRedirectUrl="/thanos/dashboard"
+    >
       <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}>
         <body className="min-h-full flex flex-col bg-background text-foreground">
           {children}
