@@ -8,6 +8,7 @@ const SYSTEM_PROMPT = `You are Thanos — Lew's personal AI assistant. Direct, p
 Lead with the answer. Use tables when comparing options. No emojis. No exclamation marks.`
 
 export async function POST(req: Request) {
+  try {
   const { userId } = await auth()
   if (!userId) return new Response('Unauthorized', { status: 401 })
 
@@ -92,4 +93,9 @@ export async function POST(req: Request) {
   }
 
   return new Response('Unhandled provider', { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message + '\n' + err.stack : String(err)
+    console.error('Chat route error:', msg)
+    return new Response(msg, { status: 500 })
+  }
 }
