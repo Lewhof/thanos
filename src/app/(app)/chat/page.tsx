@@ -43,6 +43,11 @@ export default function ChatPage() {
         body: JSON.stringify({ messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })) }),
       })
 
+      if (!res.ok) {
+        const err = await res.text()
+        throw new Error(err || `HTTP ${res.status}`)
+      }
+
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
       const assistantId = crypto.randomUUID()

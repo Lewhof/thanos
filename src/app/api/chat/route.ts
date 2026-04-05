@@ -1,7 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import { auth } from '@clerk/nextjs/server'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 export async function POST(req: Request) {
   const { userId } = await auth()
@@ -9,21 +9,26 @@ export async function POST(req: Request) {
 
   const { messages } = await req.json()
 
-  const stream = await anthropic.messages.stream({
-    model: 'claude-sonnet-4-6',
+  const stream = await openai.chat.completions.create({
+    model: 'gpt-4o',
     max_tokens: 2048,
-    system: `You are Thanos — Lew's personal AI assistant. Direct, precise, no fluff.
+    stream: true,
+    messages: [
+      {
+        role: 'system',
+        content: `You are Thanos — Lew's personal AI assistant. Direct, precise, no fluff.
 Lead with the answer. Use tables when comparing options. No emojis. No exclamation marks.`,
-    messages,
+      },
+      ...messages,
+    ],
   })
 
   const encoder = new TextEncoder()
   const readable = new ReadableStream({
     async start(controller) {
       for await (const chunk of stream) {
-        if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-          controller.enqueue(encoder.encode(chunk.delta.text))
-        }
+        const text = chunk.choices[0]?.delta?.content ?? ''
+        if (text) controller.enqueue(encoder.encode(text))
       }
       controller.close()
     },
