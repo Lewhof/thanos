@@ -4,11 +4,13 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Send } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { MODELS, DEFAULT_MODEL, type ModelId } from '@/lib/models'
 
 type Message = {
   id: string
   role: 'user' | 'assistant'
   content: string
+  modelLabel?: string
 }
 
 const WELCOME: Message = {
@@ -21,7 +23,34 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([WELCOME])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL)
+  const [availableModels, setAvailableModels] = useState<ModelId[]>([DEFAULT_MODEL])
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chat-model') as ModelId | null
+      if (saved) setSelectedModel(saved)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/chat/models')
+      .then((r) => r.json())
+      .then(({ available }: { available: ModelId[] }) => {
+        setAvailableModels(available)
+        if (available.length > 0 && !available.includes(selectedModel)) {
+          setSelectedModel(available[0])
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('chat-model', selectedModel)
+    }
+  }, [selectedModel])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -40,7 +69,10 @@ export default function ChatPage() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })) }),
+        body: JSON.stringify({
+          messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
+          model: selectedModel,
+        }),
       })
 
       if (!res.ok) {
@@ -48,10 +80,15 @@ export default function ChatPage() {
         throw new Error(err || `HTTP ${res.status}`)
       }
 
+      const modelConfig = MODELS.find((m) => m.id === selectedModel)
+      const assistantId = crypto.randomUUID()
+      setMessages((prev) => [
+        ...prev,
+        { id: assistantId, role: 'assistant', content: '', modelLabel: modelConfig?.label },
+      ])
+
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
-      const assistantId = crypto.randomUUID()
-      setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', content: '' }])
 
       if (reader) {
         while (true) {
@@ -63,8 +100,12 @@ export default function ChatPage() {
           )
         }
       }
-    } catch {
-      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: 'Something went wrong. Try again.' }])
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong.'
+      setMessages((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), role: 'assistant', content: msg },
+      ])
     } finally {
       setLoading(false)
     }
@@ -73,24 +114,50 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-border bg-card">
+      <div className="px-6 py-4 border-b border-border bg-card flex items-center justify-between">
         <h1 className="text-sm font-semibold">Chat — Thanos</h1>
+        <div className="flex gap-1 rounded-lg border border-border bg-background p-0.5">
+          {MODELS.map((m) => {
+            const isAvailable = availableModels.includes(m.id)
+            const isSelected = selectedModel === m.id
+            return (
+              <button
+                key={m.id}
+                onClick={() => isAvailable && setSelectedModel(m.id)}
+                disabled={!isAvailable}
+                className={cn(
+                  'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                  isSelected
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                  !isAvailable && 'opacity-30 cursor-not-allowed pointer-events-none'
+                )}
+              >
+                {m.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
         {messages.map((m) => (
           <div key={m.id} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
-            <div
-              className={cn(
-                'max-w-[70%] rounded-xl px-4 py-3 text-sm leading-relaxed',
-                m.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card border border-border text-foreground'
-              )}
-            >
-              {m.content || <span className="opacity-40">...</span>}
-            </div>
+            {m.role === 'assistant' ? (
+              <div className="max-w-[70%]">
+                {m.modelLabel && (
+                  <p className="text-[10px] text-muted-foreground mb-1 px-1">{m.modelLabel}</p>
+                )}
+                <div className="rounded-xl px-4 py-3 text-sm leading-relaxed bg-card border border-border text-foreground">
+                  {m.content || <span className="opacity-40">...</span>}
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-[70%] rounded-xl px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
+                {m.content}
+              </div>
+            )}
           </div>
         ))}
         <div ref={bottomRef} />
@@ -102,7 +169,12 @@ export default function ChatPage() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                send()
+              }
+            }}
             placeholder="Message Thanos..."
             rows={1}
             className="flex-1 resize-none rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
