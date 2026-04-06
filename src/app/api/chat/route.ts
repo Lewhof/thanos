@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     if (config.provider === 'google') {
       const genAI = new GoogleGenerativeAI(apiKey)
       const geminiModel = genAI.getGenerativeModel({
-        model: 'gemini-1.5-pro',
+        model: 'gemini-2.0-flash',
         systemInstruction: { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
       })
       const history = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
