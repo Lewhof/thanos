@@ -1,15 +1,15 @@
 'use client'
 import { useState, useCallback } from 'react'
-import { Layout } from 'react-grid-layout'
+import { Layout, LayoutItem } from 'react-grid-layout'
 import { WidgetDef, DEFAULT_WIDGETS, DEFAULT_LAYOUT, STORAGE_KEY } from './dashboard-widgets'
 
-function loadLayout(): Layout[] {
-  if (typeof window === 'undefined') return DEFAULT_LAYOUT
+function loadLayout(): LayoutItem[] {
+  if (typeof window === 'undefined') return [...DEFAULT_LAYOUT]
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) return JSON.parse(saved)
   } catch {}
-  return DEFAULT_LAYOUT
+  return [...DEFAULT_LAYOUT]
 }
 
 function loadWidgets(): WidgetDef[] {
@@ -25,12 +25,13 @@ function loadWidgets(): WidgetDef[] {
 }
 
 export function useDashboardLayout() {
-  const [layout, setLayout] = useState<Layout[]>(loadLayout)
+  const [layout, setLayout] = useState<LayoutItem[]>(loadLayout)
   const [widgets, setWidgets] = useState<WidgetDef[]>(loadWidgets)
 
-  const handleLayoutChange = useCallback((newLayout: Layout[]) => {
-    setLayout(newLayout)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newLayout))
+  const handleLayoutChange = useCallback((newLayout: Layout) => {
+    const mutableLayout = [...newLayout]
+    setLayout(mutableLayout)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mutableLayout))
   }, [])
 
   const deleteWidget = useCallback((id: string) => {
@@ -48,7 +49,7 @@ export function useDashboardLayout() {
 
   const addWidget = useCallback((def: WidgetDef) => {
     const defaultItem = DEFAULT_LAYOUT.find(l => l.i === def.id)
-    const newItem: Layout = defaultItem
+    const newItem: LayoutItem = defaultItem
       ? { ...defaultItem, y: Infinity }
       : { i: def.id, x: 0, y: Infinity, w: 3, h: 3, minW: 2, minH: 2 }
     setWidgets(prev => {
@@ -68,7 +69,7 @@ export function useDashboardLayout() {
   const resetLayout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(STORAGE_KEY + ':widgets')
-    setLayout(DEFAULT_LAYOUT)
+    setLayout([...DEFAULT_LAYOUT])
     setWidgets(DEFAULT_WIDGETS)
   }, [])
 

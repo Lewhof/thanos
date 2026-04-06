@@ -1,5 +1,5 @@
 import { LucideIcon, GitFork, FileText, MessageSquare, Activity } from 'lucide-react'
-import { Layout } from 'react-grid-layout'
+import { LayoutItem } from 'react-grid-layout'
 
 export type WidgetType = 'nav-stat' | 'agent-card' | 'recent-list'
 
@@ -42,7 +42,7 @@ export const DEFAULT_WIDGETS: WidgetDef[] = [
   { id: 'agent-gemini', type: 'agent-card', title: 'Gemini', props: { modelId: 'gemini-pro', label: 'Gemini' } },
 ]
 
-export const DEFAULT_LAYOUT: Layout[] = [
+export const DEFAULT_LAYOUT: LayoutItem[] = [
   { i: 'nav-diagrams',    x: 0, y: 0,  w: 3, h: 3,  minW: 2, minH: 2 },
   { i: 'nav-documents',   x: 3, y: 0,  w: 3, h: 3,  minW: 2, minH: 2 },
   { i: 'nav-chat',        x: 6, y: 0,  w: 3, h: 3,  minW: 2, minH: 2 },

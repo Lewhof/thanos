@@ -1,19 +1,19 @@
 'use client'
 import { useMemo } from 'react'
-import { Responsive, WidthProvider, Layout } from 'react-grid-layout'
+import React from 'react'
+import { ResponsiveGridLayout, useContainerWidth, Layout, LayoutItem, ResponsiveLayouts } from 'react-grid-layout'
 import { WidgetDef } from '@/lib/dashboard-widgets'
 import { WidgetWrapper } from './WidgetWrapper'
 import { NavStatWidget } from './widgets/NavStatWidget'
 import { AgentCardWidget } from './widgets/AgentCardWidget'
 import { RecentListWidget } from './widgets/RecentListWidget'
-
-const ResponsiveGridLayout = WidthProvider(Responsive)
+import { AddWidgetPicker } from './AddWidgetPicker'
 
 interface Props {
   widgets: WidgetDef[]
-  layout: Layout[]
+  layout: LayoutItem[]
   isEditMode: boolean
-  onLayoutChange: (layout: Layout[]) => void
+  onLayoutChange: (layout: Layout) => void
   onDeleteWidget: (id: string) => void
   onAddWidget?: (def: WidgetDef) => void
 }
@@ -35,33 +35,48 @@ function renderWidget(def: WidgetDef) {
 }
 
 export function DashboardGrid({ widgets, layout, isEditMode, onLayoutChange, onDeleteWidget, onAddWidget }: Props) {
-  const layouts = useMemo(() => ({ lg: layout, md: layout, sm: layout }), [layout])
+  const { width, containerRef } = useContainerWidth({ initialWidth: 1200 })
+
+  const layouts: ResponsiveLayouts = useMemo(() => ({
+    lg: layout,
+    md: layout,
+    sm: layout,
+  }), [layout])
 
   return (
-    <ResponsiveGridLayout
-      className="layout"
-      layouts={layouts}
-      breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
-      cols={{ lg: 12, md: 10, sm: 6, xs: 4 }}
-      rowHeight={60}
-      isDraggable={isEditMode}
-      isResizable={isEditMode}
-      draggableHandle=".widget-drag-handle"
-      onLayoutChange={(currentLayout) => onLayoutChange(currentLayout)}
-      margin={[12, 12]}
-    >
-      {widgets.map(def => (
-        <div key={def.id}>
-          <WidgetWrapper
-            id={def.id}
-            title={def.title}
-            isEditMode={isEditMode}
-            onDelete={onDeleteWidget}
-          >
-            {renderWidget(def)}
-          </WidgetWrapper>
+    <div ref={containerRef as React.RefObject<HTMLDivElement>}>
+      <ResponsiveGridLayout
+        width={width ?? 1200}
+        layouts={layouts}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
+        cols={{ lg: 12, md: 10, sm: 6, xs: 4 }}
+        rowHeight={60}
+        dragConfig={{ enabled: isEditMode, handle: '.widget-drag-handle' }}
+        resizeConfig={{ enabled: isEditMode }}
+        onLayoutChange={(_layout, allLayouts) => {
+          const lgLayout = allLayouts.lg
+          if (lgLayout) onLayoutChange(lgLayout)
+        }}
+        margin={[12, 12]}
+      >
+        {widgets.map(def => (
+          <div key={def.id}>
+            <WidgetWrapper
+              id={def.id}
+              title={def.title}
+              isEditMode={isEditMode}
+              onDelete={onDeleteWidget}
+            >
+              {renderWidget(def)}
+            </WidgetWrapper>
+          </div>
+        ))}
+      </ResponsiveGridLayout>
+      {isEditMode && onAddWidget && (
+        <div className="mt-4 flex justify-center">
+          <AddWidgetPicker widgets={widgets} onAdd={onAddWidget} />
         </div>
-      ))}
-    </ResponsiveGridLayout>
+      )}
+    </div>
   )
 }
