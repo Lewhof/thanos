@@ -8,6 +8,7 @@ import {
   GitFork,
   FileText,
   MessageSquare,
+  Lock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +16,7 @@ const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/diagrams', label: 'Diagrams', icon: GitFork },
   { href: '/documents', label: 'Documents', icon: FileText },
+  { href: '/vault', label: 'Vault', icon: Lock },
   { href: '/chat', label: 'Chat', icon: MessageSquare },
 ]
 
