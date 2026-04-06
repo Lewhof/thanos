@@ -1,0 +1,131 @@
+{
+  "features": [
+    {
+      "id": "F-01",
+      "name": "Diagram List Page",
+      "description": "Grid of DiagramCard components with create/delete, empty state, and loading skeleton",
+      "passes": true,
+      "files": [
+        "src/app/(app)/diagrams/page.tsx",
+        "src/components/diagrams/DiagramCard.tsx"
+      ]
+    },
+    {
+      "id": "F-02",
+      "name": "Editor Route",
+      "description": "Editor page at /diagrams/[id] with server component wrapping DiagramEditor client component",
+      "passes": true,
+      "files": [
+        "src/app/(app)/diagrams/[id]/page.tsx",
+        "src/app/(app)/diagrams/[id]/DiagramEditor.tsx"
+      ]
+    },
+    {
+      "id": "F-03",
+      "name": "Foundation",
+      "description": "Shared types, Supabase browser/server clients, diagrams API routes (GET/POST/PATCH/DELETE) with Clerk auth",
+      "passes": true,
+      "files": [
+        "src/lib/diagram-types.ts",
+        "src/lib/supabase.ts",
+        "src/lib/supabase-server.ts",
+        "src/app/api/diagrams/route.ts",
+        "src/app/api/diagrams/[id]/route.ts"
+      ]
+    },
+    {
+      "id": "F-04",
+      "name": "Auto-save + Save Status",
+      "description": "1500ms debounced auto-save with enabled guard, SaveStatusBadge with color-coded states",
+      "passes": true,
+      "files": [
+        "src/hooks/use-auto-save.ts",
+        "src/components/diagrams/SaveStatusBadge.tsx"
+      ]
+    },
+    {
+      "id": "F-05",
+      "name": "Custom Node Types",
+      "description": "7 node types: Default, Input, Output, Decision (diamond), Process (double-border), Note (folded corner), Group (resizable) with inline label editing",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/nodes/DefaultNode.tsx",
+        "src/components/diagrams/nodes/InputNode.tsx",
+        "src/components/diagrams/nodes/OutputNode.tsx",
+        "src/components/diagrams/nodes/DecisionNode.tsx",
+        "src/components/diagrams/nodes/ProcessNode.tsx",
+        "src/components/diagrams/nodes/NoteNode.tsx",
+        "src/components/diagrams/nodes/GroupNode.tsx",
+        "src/components/diagrams/nodes/index.ts"
+      ]
+    },
+    {
+      "id": "F-06",
+      "name": "Node Toolbar",
+      "description": "NodeActionsToolbar with type selector popover, 5 color swatches, duplicate, and delete actions",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/NodeActionsToolbar.tsx"
+      ]
+    },
+    {
+      "id": "F-07",
+      "name": "Edge Inspector",
+      "description": "Bottom-right panel for selected edge: type (smoothstep/bezier/step/straight), animated toggle, label input",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/EdgeInspector.tsx"
+      ]
+    },
+    {
+      "id": "F-08",
+      "name": "Node Palette",
+      "description": "220px left panel with 7 draggable node type tiles, drag-to-canvas with drop positioning",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/NodePalette.tsx"
+      ]
+    },
+    {
+      "id": "F-09",
+      "name": "Top Toolbar",
+      "description": "Toolbar with back link, inline title edit, save status badge, undo/redo, fit view, PNG export, minimap toggle, theme toggle",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/DiagramToolbar.tsx",
+        "src/hooks/use-export-png.ts"
+      ]
+    },
+    {
+      "id": "F-10",
+      "name": "Undo/Redo",
+      "description": "50-deep history stack with past/future refs, push/undo/redo, triggered at semantic commit points",
+      "passes": true,
+      "files": [
+        "src/hooks/use-diagram-history.ts"
+      ]
+    },
+    {
+      "id": "F-11",
+      "name": "Keyboard Shortcuts",
+      "description": "Delete/Backspace for selected nodes+edges, Ctrl+Z undo, Ctrl+Y/Ctrl+Shift+Z redo, Ctrl+S immediate save",
+      "passes": true,
+      "files": [
+        "src/hooks/use-diagram-shortcuts.ts"
+      ]
+    },
+    {
+      "id": "F-12",
+      "name": "Nice-to-haves",
+      "description": "Minimap toggle, dark/light color mode with localStorage persistence, GroupNode with NodeResizer",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/nodes/GroupNode.tsx",
+        "src/app/(app)/diagrams/[id]/DiagramEditor.tsx"
+      ]
+    }
+  ],
+  "build_passes": true,
+  "total_features": 12,
+  "passing_features": 12
+}
