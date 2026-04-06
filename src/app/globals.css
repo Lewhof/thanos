@@ -135,3 +135,26 @@
     @apply font-sans;
   }
 }
+
+/* ── Mobile touch targets ── */
+/* Ensure interactive elements meet 44×44px minimum on touch devices */
+@media (max-width: 767px) {
+  button,
+  [role="button"],
+  a[href],
+  select,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Inline/icon-only buttons should still honour min-height but can be narrower
+     when they carry explicit size constraints — override just height */
+  .size-7,
+  .size-8,
+  .h-7,
+  .h-8 {
+    min-height: 44px;
+  }
+}
