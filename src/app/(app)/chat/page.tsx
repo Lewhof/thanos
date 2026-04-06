@@ -112,11 +112,17 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    /*
+     * On mobile the input is fixed to the bottom of the viewport.
+     * We use padding-bottom on the messages area to keep content
+     * visible above it, and dvh (dynamic viewport height) so the
+     * layout shrinks when the soft keyboard appears.
+     */
+    <div className="flex flex-col h-screen md:h-screen" style={{ height: '100dvh' }}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-border bg-card flex items-center justify-between">
+      <div className="px-4 md:px-6 py-3 md:py-4 border-b border-border bg-card flex items-center justify-between shrink-0">
         <h1 className="text-sm font-semibold">Chat — Thanos</h1>
-        <div className="flex gap-1 rounded-lg border border-border bg-background p-0.5">
+        <div className="flex gap-1 rounded-lg border border-border bg-background p-0.5 overflow-x-auto max-w-[60vw] md:max-w-none">
           {MODELS.map((m) => {
             const isAvailable = availableModels.includes(m.id)
             const isSelected = selectedModel === m.id
@@ -126,7 +132,7 @@ export default function ChatPage() {
                 onClick={() => isAvailable && setSelectedModel(m.id)}
                 disabled={!isAvailable}
                 className={cn(
-                  'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                  'rounded-md px-3 py-1 text-xs font-medium transition-colors whitespace-nowrap',
                   isSelected
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:text-foreground',
@@ -140,12 +146,12 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+      {/* Messages — scrolls above the fixed input on mobile */}
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 space-y-4 pb-24 md:pb-6">
         {messages.map((m) => (
           <div key={m.id} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
             {m.role === 'assistant' ? (
-              <div className="max-w-[70%]">
+              <div className="max-w-[85%] md:max-w-[70%]">
                 {m.modelLabel && (
                   <p className="text-[10px] text-muted-foreground mb-1 px-1">{m.modelLabel}</p>
                 )}
@@ -154,7 +160,7 @@ export default function ChatPage() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-[70%] rounded-xl px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
+              <div className="max-w-[85%] md:max-w-[70%] rounded-xl px-4 py-3 text-sm leading-relaxed bg-primary text-primary-foreground">
                 {m.content}
               </div>
             )}
@@ -163,8 +169,8 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="px-6 py-4 border-t border-border bg-card">
+      {/* Input — fixed on mobile, normal flow on desktop */}
+      <div className="fixed md:relative bottom-14 md:bottom-auto left-0 right-0 md:left-auto md:right-auto px-4 md:px-6 py-3 md:py-4 border-t border-border bg-card shrink-0">
         <div className="flex gap-3">
           <textarea
             value={input}
