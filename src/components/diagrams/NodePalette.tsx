@@ -1,6 +1,7 @@
 'use client'
 
-import { Square, Diamond, Circle, FileText, Layers, Box, Database, Cloud, User } from 'lucide-react'
+import { useState } from 'react'
+import { Square, Diamond, Circle, FileText, Layers, Box, Database, Cloud, User, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PaletteItem {
   type: string
@@ -73,36 +74,52 @@ const paletteItems: PaletteItem[] = [
 ]
 
 export default function NodePalette() {
+  // Collapsed by default on mobile; open on desktop
+  const [open, setOpen] = useState(true)
+
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType)
     event.dataTransfer.effectAllowed = 'move'
   }
 
   return (
-    <div className="w-[220px] flex-shrink-0 border-r border-border bg-card/50 overflow-y-auto">
-      <div className="p-3 border-b border-border">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Node Types
-        </h3>
-      </div>
-      <div className="p-2 flex flex-col gap-1">
-        {paletteItems.map((item) => (
-          <div
-            key={item.type}
-            draggable
-            onDragStart={(e) => onDragStart(e, item.type)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md border-2 bg-card cursor-grab active:cursor-grabbing text-sm font-medium hover:bg-accent transition-colors select-none ${item.className}`}
-          >
-            {item.icon}
-            <span>{item.label}</span>
+    <div className={`relative flex-shrink-0 border-r border-border bg-card/50 flex flex-col transition-all duration-200 ${open ? 'w-[220px]' : 'w-8'}`}>
+      {/* Toggle button */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? 'Collapse palette' : 'Expand palette'}
+        className="absolute -right-3 top-4 z-10 flex items-center justify-center w-6 h-6 rounded-full bg-card border border-border shadow-sm hover:bg-accent transition-colors"
+      >
+        {open ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+      </button>
+
+      {open && (
+        <>
+          <div className="p-3 border-b border-border">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Node Types
+            </h3>
           </div>
-        ))}
-      </div>
-      <div className="p-3 border-t border-border mt-2">
-        <p className="text-xs text-muted-foreground">
-          Drag nodes onto the canvas to add them.
-        </p>
-      </div>
+          <div className="p-2 flex flex-col gap-1 overflow-y-auto flex-1">
+            {paletteItems.map((item) => (
+              <div
+                key={item.type}
+                draggable
+                onDragStart={(e) => onDragStart(e, item.type)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md border-2 bg-card cursor-grab active:cursor-grabbing text-sm font-medium hover:bg-accent transition-colors select-none ${item.className}`}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="p-3 border-t border-border">
+            <p className="text-xs text-muted-foreground">
+              Drag nodes onto the canvas to add them.
+            </p>
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -63,9 +63,9 @@ export default function DiagramToolbar({
   }
 
   return (
-    <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/80 backdrop-blur-sm z-10 flex-shrink-0">
+    <div className="flex items-center px-2 md:px-3 py-2 border-b border-border bg-card/80 backdrop-blur-sm z-10 flex-shrink-0 gap-2 overflow-x-auto">
       {/* Left: back + title */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <Link
           href="/diagrams"
           className={buttonVariants({ variant: 'ghost', size: 'sm', className: 'h-7 w-7 p-0' })}
@@ -86,12 +86,12 @@ export default function DiagramToolbar({
                 setEditingTitle(false)
               }
             }}
-            className="h-7 text-sm font-medium w-48"
+            className="h-7 text-sm font-medium w-32 md:w-48"
             autoFocus
           />
         ) : (
           <button
-            className="text-sm font-medium px-2 py-1 rounded hover:bg-accent transition-colors"
+            className="text-sm font-medium px-2 py-1 rounded hover:bg-accent transition-colors max-w-[100px] md:max-w-none truncate"
             onClick={() => {
               setEditingTitle(true)
               setTitleValue(title)
@@ -103,13 +103,17 @@ export default function DiagramToolbar({
         )}
       </div>
 
-      {/* Center: save status */}
-      <div className="absolute left-1/2 -translate-x-1/2">
+      {/* Save status — pushed right but scrolls with toolbar on mobile */}
+      <div className="hidden md:block absolute left-1/2 -translate-x-1/2 pointer-events-none">
         <SaveStatusBadge status={saveStatus} />
       </div>
+      <SaveStatusBadge status={saveStatus} className="md:hidden shrink-0" />
 
-      {/* Right: actions */}
-      <div className="flex items-center gap-1">
+      {/* Spacer */}
+      <div className="flex-1 shrink-0 min-w-2" />
+
+      {/* Right: actions — scrollable on mobile */}
+      <div className="flex items-center gap-1 shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -171,7 +175,7 @@ export default function DiagramToolbar({
         {/* Export dropdown */}
         <Popover>
           <PopoverTrigger
-            className="inline-flex items-center gap-1 h-7 px-2 text-xs rounded-md hover:bg-accent font-medium transition-colors"
+            className="inline-flex items-center gap-1 h-7 px-2 text-xs rounded-md hover:bg-accent font-medium transition-colors whitespace-nowrap"
             title="Export"
           >
             <Download size={14} />
