@@ -31,7 +31,6 @@ export default function ProcessNode({ id, data, selected }: NodeProps<AppNode>) 
         className="bg-card px-4 py-2 min-w-[100px] min-h-[40px] flex items-center justify-center text-sm font-medium border-2 ring-2 ring-offset-1 cursor-default shadow-sm"
         style={{
           borderColor,
-          ringColor: borderColor,
           outline: `2px solid ${borderColor}`,
           outlineOffset: '3px',
         }}

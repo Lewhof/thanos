@@ -74,10 +74,10 @@ export default function NodeActionsToolbar({ nodeId, isVisible }: NodeActionsToo
     <NodeToolbar isVisible={isVisible} position={Position.Top} className="flex items-center gap-1 bg-popover border border-border rounded-md px-2 py-1 shadow-md">
       {/* Type selector */}
       <Popover open={typeOpen} onOpenChange={setTypeOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs gap-1">
-            Type <ChevronDown size={10} />
-          </Button>
+        <PopoverTrigger
+          className="inline-flex items-center h-6 px-2 text-xs gap-1 rounded-md hover:bg-accent font-medium transition-colors"
+        >
+          Type <ChevronDown size={10} />
         </PopoverTrigger>
         <PopoverContent className="w-32 p-1" align="start">
           {NODE_TYPES.map((t) => (

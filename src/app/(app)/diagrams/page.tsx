@@ -1,100 +1,94 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import {
-  ReactFlow,
-  addEdge,
-  useNodesState,
-  useEdgesState,
-  Controls,
-  MiniMap,
-  Background,
-  BackgroundVariant,
-  type Connection,
-} from '@xyflow/react'
-import '@xyflow/react/dist/style.css'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Plus, Save } from 'lucide-react'
-
-const initialNodes = [
-  {
-    id: '1',
-    position: { x: 250, y: 100 },
-    data: { label: 'Start' },
-    type: 'input',
-  },
-  {
-    id: '2',
-    position: { x: 250, y: 220 },
-    data: { label: 'Process' },
-  },
-  {
-    id: '3',
-    position: { x: 250, y: 340 },
-    data: { label: 'End' },
-    type: 'output',
-  },
-]
-
-const initialEdges = [
-  { id: 'e1-2', source: '1', target: '2', animated: true },
-  { id: 'e2-3', source: '2', target: '3' },
-]
-
-let nodeId = 4
+import { Skeleton } from '@/components/ui/skeleton'
+import DiagramCard from '@/components/diagrams/DiagramCard'
+import { Plus, GitGraph } from 'lucide-react'
+import type { DiagramRow } from '@/lib/diagram-types'
 
 export default function DiagramsPage() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
-  const [diagramName] = useState('Untitled Diagram')
+  const router = useRouter()
+  const [diagrams, setDiagrams] = useState<DiagramRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
 
-  const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
-  )
+  useEffect(() => {
+    fetch('/api/diagrams')
+      .then((res) => res.json())
+      .then((data) => {
+        setDiagrams(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
 
-  const addNode = useCallback(() => {
-    setNodes((nds) => [
-      ...nds,
-      {
-        id: String(nodeId++),
-        position: { x: Math.random() * 400 + 50, y: Math.random() * 300 + 50 },
-        data: { label: `Node ${nodeId - 1}` },
-      },
-    ])
-  }, [setNodes])
+  const handleCreate = useCallback(async () => {
+    setCreating(true)
+    try {
+      const res = await fetch('/api/diagrams', { method: 'POST' })
+      const data = await res.json()
+      router.push(`/diagrams/${data.id}`)
+    } catch {
+      setCreating(false)
+    }
+  }, [router])
+
+  const handleDelete = useCallback((id: string) => {
+    setDiagrams((prev) => prev.filter((d) => d.id !== id))
+  }, [])
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
-        <h1 className="text-sm font-semibold">{diagramName}</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={addNode}>
-            <Plus size={14} className="mr-1" /> Add Node
-          </Button>
-          <Button size="sm">
-            <Save size={14} className="mr-1" /> Save
-          </Button>
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Diagrams</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Create and manage your flow diagrams
+          </p>
         </div>
+        <Button onClick={handleCreate} disabled={creating} className="gap-2">
+          <Plus size={16} />
+          {creating ? 'Creating…' : 'New Diagram'}
+        </Button>
       </div>
 
-      {/* Canvas */}
-      <div className="flex-1">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          colorMode="dark"
-        >
-          <Controls />
-          <MiniMap />
-          <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        </ReactFlow>
-      </div>
+      {/* Content */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-lg border border-border p-4">
+              <Skeleton className="w-full h-24 mb-3 rounded-md" />
+              <Skeleton className="w-3/4 h-4 mb-2" />
+              <Skeleton className="w-1/2 h-3" />
+            </div>
+          ))}
+        </div>
+      ) : diagrams.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <GitGraph size={48} className="text-muted-foreground/30 mb-4" />
+          <h2 className="text-lg font-medium mb-2">No diagrams yet</h2>
+          <p className="text-muted-foreground text-sm mb-4">
+            Create your first diagram to get started.
+          </p>
+          <Button onClick={handleCreate} disabled={creating} className="gap-2">
+            <Plus size={16} />
+            {creating ? 'Creating…' : 'Create your first diagram'}
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {diagrams.map((diagram) => (
+            <DiagramCard
+              key={diagram.id}
+              diagram={diagram}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
