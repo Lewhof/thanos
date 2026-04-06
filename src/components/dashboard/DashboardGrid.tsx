@@ -15,6 +15,7 @@ interface Props {
   isEditMode: boolean
   onLayoutChange: (layout: Layout[]) => void
   onDeleteWidget: (id: string) => void
+  onAddWidget?: (def: WidgetDef) => void
 }
 
 function renderWidget(def: WidgetDef) {
@@ -33,7 +34,7 @@ function renderWidget(def: WidgetDef) {
   return null
 }
 
-export function DashboardGrid({ widgets, layout, isEditMode, onLayoutChange, onDeleteWidget }: Props) {
+export function DashboardGrid({ widgets, layout, isEditMode, onLayoutChange, onDeleteWidget, onAddWidget }: Props) {
   const layouts = useMemo(() => ({ lg: layout, md: layout, sm: layout }), [layout])
 
   return (
