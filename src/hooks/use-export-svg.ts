@@ -2,19 +2,18 @@
 
 import { useCallback } from 'react'
 
-export function useExportPng(diagramTitle: string) {
-  const exportPng = useCallback(async () => {
-    const { toPng } = await import('html-to-image')
+export function useExportSvg(diagramTitle: string) {
+  const exportSvg = useCallback(async () => {
+    const { toSvg } = await import('html-to-image')
     const el = document.querySelector('.react-flow__renderer') as HTMLElement
     if (!el) return
 
     try {
-      const dataUrl = await toPng(el, {
+      const dataUrl = await toSvg(el, {
         backgroundColor: '#1a1a2e',
-        pixelRatio: 2,
       })
       const link = document.createElement('a')
-      link.download = `${diagramTitle.replace(/\s+/g, '-').toLowerCase()}.png`
+      link.download = `${diagramTitle.replace(/\s+/g, '-').toLowerCase()}.svg`
       link.href = dataUrl
       link.click()
     } catch (err) {
@@ -23,5 +22,5 @@ export function useExportPng(diagramTitle: string) {
     }
   }, [diagramTitle])
 
-  return exportPng
+  return exportSvg
 }

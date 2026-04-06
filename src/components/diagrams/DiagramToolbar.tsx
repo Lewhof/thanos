@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ArrowLeft, Undo2, Redo2, Maximize2, Download, Map, Sun, Moon } from 'lucide-react'
+import { ArrowLeft, Undo2, Redo2, Maximize2, Download, Map, Sun, Moon, Grid3X3, Copy, FileImage } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import SaveStatusBadge from './SaveStatusBadge'
 import type { SaveStatus } from '@/lib/diagram-types'
 
@@ -17,12 +18,15 @@ interface DiagramToolbarProps {
   canUndo: boolean
   canRedo: boolean
   showMinimap: boolean
+  snapToGrid: boolean
   colorMode: 'dark' | 'light'
   onUndo: () => void
   onRedo: () => void
   onFitView: () => void
   onExportPng: () => void
+  onExportSvg: () => void
   onToggleMinimap: () => void
+  onToggleSnapToGrid: () => void
   onToggleColorMode: () => void
   onTitleChange: (title: string) => Promise<void>
 }
@@ -33,12 +37,15 @@ export default function DiagramToolbar({
   canUndo,
   canRedo,
   showMinimap,
+  snapToGrid,
   colorMode,
   onUndo,
   onRedo,
   onFitView,
   onExportPng,
+  onExportSvg,
   onToggleMinimap,
+  onToggleSnapToGrid,
   onToggleColorMode,
   onTitleChange,
 }: DiagramToolbarProps) {
@@ -143,6 +150,15 @@ export default function DiagramToolbar({
           <Map size={15} />
         </Button>
         <Button
+          variant={snapToGrid ? 'secondary' : 'ghost'}
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={onToggleSnapToGrid}
+          title={snapToGrid ? 'Snap to Grid: ON' : 'Snap to Grid: OFF'}
+        >
+          <Grid3X3 size={15} />
+        </Button>
+        <Button
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0"
@@ -152,15 +168,40 @@ export default function DiagramToolbar({
           {colorMode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </Button>
         <Separator orientation="vertical" className="h-5 mx-1" />
+        {/* Export dropdown */}
+        <Popover>
+          <PopoverTrigger
+            className="inline-flex items-center gap-1 h-7 px-2 text-xs rounded-md hover:bg-accent font-medium transition-colors"
+            title="Export"
+          >
+            <Download size={14} />
+            Export
+          </PopoverTrigger>
+          <PopoverContent className="w-36 p-1" align="end">
+            <button
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded hover:bg-accent"
+              onClick={onExportPng}
+            >
+              <Download size={12} />
+              Export PNG
+            </button>
+            <button
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded hover:bg-accent"
+              onClick={onExportSvg}
+            >
+              <FileImage size={12} />
+              Export SVG
+            </button>
+          </PopoverContent>
+        </Popover>
+        {/* Copy shortcut hint */}
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 px-2 gap-1 text-xs"
-          onClick={onExportPng}
-          title="Export PNG"
+          className="h-7 w-7 p-0"
+          title="Copy selected (Ctrl+C) / Paste (Ctrl+V)"
         >
-          <Download size={14} />
-          PNG
+          <Copy size={14} />
         </Button>
       </div>
     </div>

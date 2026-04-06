@@ -7,11 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Copy, Trash2, ChevronDown } from 'lucide-react'
 
 const NODE_TYPES = [
-  { value: 'default', label: 'Default' },
-  { value: 'input', label: 'Input' },
-  { value: 'output', label: 'Output' },
+  { value: 'default', label: 'Rectangle' },
+  { value: 'input', label: 'Start' },
+  { value: 'output', label: 'End' },
   { value: 'decision', label: 'Decision' },
   { value: 'process', label: 'Process' },
+  { value: 'database', label: 'Database' },
+  { value: 'cloud', label: 'Cloud' },
+  { value: 'actor', label: 'Actor' },
   { value: 'note', label: 'Note' },
   { value: 'group', label: 'Group' },
 ]
@@ -19,9 +22,16 @@ const NODE_TYPES = [
 const COLORS = [
   { label: 'Slate', value: 'rgb(100,116,139)' },
   { label: 'Blue', value: 'rgb(59,130,246)' },
+  { label: 'Indigo', value: 'rgb(99,102,241)' },
+  { label: 'Purple', value: 'rgb(168,85,247)' },
   { label: 'Green', value: 'rgb(34,197,94)' },
+  { label: 'Teal', value: 'rgb(20,184,166)' },
+  { label: 'Sky', value: 'rgb(56,189,248)' },
   { label: 'Yellow', value: 'rgb(234,179,8)' },
+  { label: 'Amber', value: 'rgb(251,191,36)' },
+  { label: 'Orange', value: 'rgb(249,115,22)' },
   { label: 'Red', value: 'rgb(239,68,68)' },
+  { label: 'Rose', value: 'rgb(244,63,94)' },
 ]
 
 interface NodeActionsToolbarProps {
@@ -79,7 +89,7 @@ export default function NodeActionsToolbar({ nodeId, isVisible }: NodeActionsToo
         >
           Type <ChevronDown size={10} />
         </PopoverTrigger>
-        <PopoverContent className="w-32 p-1" align="start">
+        <PopoverContent className="w-36 p-1" align="start">
           {NODE_TYPES.map((t) => (
             <button
               key={t.value}
@@ -92,13 +102,13 @@ export default function NodeActionsToolbar({ nodeId, isVisible }: NodeActionsToo
         </PopoverContent>
       </Popover>
 
-      {/* Color swatches */}
-      <div className="flex items-center gap-0.5">
+      {/* Color swatches — 12 colors in two rows */}
+      <div className="flex items-center gap-0.5 flex-wrap" style={{ maxWidth: 66 }}>
         {COLORS.map((c) => (
           <button
             key={c.value}
             title={c.label}
-            className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
+            className="w-3.5 h-3.5 rounded-full border border-border/50 hover:scale-125 transition-transform"
             style={{ background: c.value }}
             onClick={() => handleColorChange(c.value)}
           />

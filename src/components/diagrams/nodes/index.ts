@@ -5,6 +5,9 @@ import DecisionNode from './DecisionNode'
 import ProcessNode from './ProcessNode'
 import NoteNode from './NoteNode'
 import GroupNode from './GroupNode'
+import DatabaseNode from './DatabaseNode'
+import CloudNode from './CloudNode'
+import ActorNode from './ActorNode'
 
 export const nodeTypes = {
   default: DefaultNode,
@@ -14,4 +17,7 @@ export const nodeTypes = {
   process: ProcessNode,
   note: NoteNode,
   group: GroupNode,
+  database: DatabaseNode,
+  cloud: CloudNode,
+  actor: ActorNode,
 } as const

@@ -1,6 +1,6 @@
 'use client'
 
-import { Square, Diamond, Circle, FileText, Layers, Box } from 'lucide-react'
+import { Square, Diamond, Circle, FileText, Layers, Box, Database, Cloud, User } from 'lucide-react'
 
 interface PaletteItem {
   type: string
@@ -12,19 +12,19 @@ interface PaletteItem {
 const paletteItems: PaletteItem[] = [
   {
     type: 'default',
-    label: 'Default',
+    label: 'Rectangle',
     icon: <Square size={16} />,
     className: 'border-slate-500',
   },
   {
     type: 'input',
-    label: 'Input',
+    label: 'Start',
     icon: <Circle size={16} className="text-blue-400" />,
     className: 'border-blue-500',
   },
   {
     type: 'output',
-    label: 'Output',
+    label: 'End',
     icon: <Circle size={16} className="text-green-400" />,
     className: 'border-green-500',
   },
@@ -41,10 +41,28 @@ const paletteItems: PaletteItem[] = [
     className: 'border-purple-500',
   },
   {
+    type: 'database',
+    label: 'Database',
+    icon: <Database size={16} className="text-indigo-400" />,
+    className: 'border-indigo-500',
+  },
+  {
+    type: 'cloud',
+    label: 'Cloud',
+    icon: <Cloud size={16} className="text-sky-400" />,
+    className: 'border-sky-500',
+  },
+  {
+    type: 'actor',
+    label: 'Actor',
+    icon: <User size={16} className="text-amber-400" />,
+    className: 'border-amber-500',
+  },
+  {
     type: 'note',
     label: 'Note',
     icon: <FileText size={16} className="text-amber-400" />,
-    className: 'border-amber-500',
+    className: 'border-amber-500 border-dashed',
   },
   {
     type: 'group',

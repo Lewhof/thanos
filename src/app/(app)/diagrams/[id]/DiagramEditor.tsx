@@ -14,7 +14,6 @@ import {
   BackgroundVariant,
   Panel,
   type Connection,
-  type Edge,
   type EdgeMouseHandler,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -26,7 +25,10 @@ import { useAutoSave } from '@/hooks/use-auto-save'
 import { useDiagramHistory } from '@/hooks/use-diagram-history'
 import { useDiagramShortcuts } from '@/hooks/use-diagram-shortcuts'
 import { useExportPng } from '@/hooks/use-export-png'
+import { useExportSvg } from '@/hooks/use-export-svg'
 import type { AppNode, AppEdge, DiagramRow } from '@/lib/diagram-types'
+
+const GRID_SIZE = 16
 
 interface DiagramEditorInnerProps {
   diagram: DiagramRow
@@ -40,6 +42,7 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false)
   const [selectedEdge, setSelectedEdge] = useState<AppEdge | null>(null)
   const [showMinimap, setShowMinimap] = useState(true)
+  const [snapToGrid, setSnapToGrid] = useState(false)
   const [colorMode, setColorMode] = useState<'dark' | 'light'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('diagram-color-mode') as 'dark' | 'light') ?? 'dark'
@@ -48,6 +51,7 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
   })
   const history = useDiagramHistory()
   const exportPng = useExportPng(title)
+  const exportSvg = useExportSvg(title)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
   // Enable auto-save after initial load
@@ -119,6 +123,10 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
     })
   }, [])
 
+  const handleToggleSnapToGrid = useCallback(() => {
+    setSnapToGrid((v) => !v)
+  }, [])
+
   useDiagramShortcuts({
     nodes,
     edges,
@@ -140,7 +148,16 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
       const nodeType = event.dataTransfer.getData('application/reactflow')
       if (!nodeType) return
 
-      const position = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+      let position = screenToFlowPosition({ x: event.clientX, y: event.clientY })
+
+      // Snap to grid if enabled
+      if (snapToGrid) {
+        position = {
+          x: Math.round(position.x / GRID_SIZE) * GRID_SIZE,
+          y: Math.round(position.y / GRID_SIZE) * GRID_SIZE,
+        }
+      }
+
       const newNode: AppNode = {
         id: crypto.randomUUID(),
         type: nodeType,
@@ -154,7 +171,7 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
         return updated
       })
     },
-    [screenToFlowPosition, setNodes, history, edges]
+    [screenToFlowPosition, setNodes, history, edges, snapToGrid]
   )
 
   return (
@@ -166,12 +183,15 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
         canUndo={history.canUndo}
         canRedo={history.canRedo}
         showMinimap={showMinimap}
+        snapToGrid={snapToGrid}
         colorMode={colorMode}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onFitView={() => fitView({ padding: 0.1 })}
         onExportPng={exportPng}
+        onExportSvg={exportSvg}
         onToggleMinimap={() => setShowMinimap((v) => !v)}
+        onToggleSnapToGrid={handleToggleSnapToGrid}
         onToggleColorMode={handleToggleColorMode}
         onTitleChange={handleTitleChange}
       />
@@ -196,10 +216,16 @@ function DiagramEditorInner({ diagram }: DiagramEditorInnerProps) {
             fitView
             colorMode={colorMode}
             deleteKeyCode={null}
+            snapToGrid={snapToGrid}
+            snapGrid={[GRID_SIZE, GRID_SIZE]}
           >
             <Controls />
             {showMinimap && <MiniMap />}
-            <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+            <Background
+              variant={snapToGrid ? BackgroundVariant.Lines : BackgroundVariant.Dots}
+              gap={GRID_SIZE}
+              size={snapToGrid ? 0.5 : 1}
+            />
             <Panel position="bottom-right">
               <EdgeInspector
                 selectedEdge={selectedEdge}
@@ -228,7 +254,7 @@ export default function DiagramEditor({ id }: DiagramEditorProps) {
         return res.json()
       })
       .then(setDiagram)
-      .catch((err) => setError(err.message))
+      .catch((err: Error) => setError(err.message))
   }, [id])
 
   if (error) {
