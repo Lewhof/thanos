@@ -16,6 +16,7 @@ interface Props {
   onLayoutChange: (layout: Layout) => void
   onDeleteWidget: (id: string) => void
   onAddWidget?: (def: WidgetDef) => void
+  isMobile?: boolean
 }
 
 function renderWidget(def: WidgetDef) {
@@ -34,7 +35,7 @@ function renderWidget(def: WidgetDef) {
   return null
 }
 
-export function DashboardGrid({ widgets, layout, isEditMode, onLayoutChange, onDeleteWidget, onAddWidget }: Props) {
+export function DashboardGrid({ widgets, layout, isEditMode, onLayoutChange, onDeleteWidget, onAddWidget, isMobile }: Props) {
   const { width, containerRef } = useContainerWidth({ initialWidth: 1200 })
 
   const layouts: ResponsiveLayouts = useMemo(() => ({
@@ -42,6 +43,26 @@ export function DashboardGrid({ widgets, layout, isEditMode, onLayoutChange, onD
     md: layout,
     sm: layout,
   }), [layout])
+
+  // On mobile: render a simple stacked list — no drag/resize
+  if (isMobile) {
+    return (
+      <div className="flex flex-col gap-3">
+        {widgets.map(def => (
+          <div key={def.id} className="w-full min-h-[120px]">
+            <WidgetWrapper
+              id={def.id}
+              title={def.title}
+              isEditMode={false}
+              onDelete={onDeleteWidget}
+            >
+              {renderWidget(def)}
+            </WidgetWrapper>
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div ref={containerRef as React.RefObject<HTMLDivElement>}>
