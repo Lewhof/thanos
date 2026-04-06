@@ -37,7 +37,7 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Documents</h1>
         <p className="text-muted-foreground mt-1">Upload files — AI suggests where they belong.</p>
@@ -49,7 +49,7 @@ export default function DocumentsPage() {
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files) }}
         onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors mb-8
+        className={`border-2 border-dashed rounded-xl p-8 md:p-12 text-center cursor-pointer transition-colors mb-8
           ${dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-accent/30'}`}
       >
         <Upload size={32} className="mx-auto mb-3 text-muted-foreground" />
@@ -64,18 +64,18 @@ export default function DocumentsPage() {
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Uploaded Files</h2>
           {files.map((file) => (
             <Card key={file.id}>
-              <CardContent className="flex items-center justify-between py-4">
-                <div className="flex items-center gap-3">
-                  <FileText size={18} className="text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">{file.name}</p>
+              <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <FileText size={18} className="text-muted-foreground shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{file.name}</p>
                     <p className="text-xs text-muted-foreground">{file.size}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Folder size={14} />
-                    <span>AI suggests:</span>
+                    <span className="hidden sm:inline">AI suggests:</span>
                     <Badge variant="secondary">{file.suggestedFolder}</Badge>
                   </div>
                   {file.confirmed ? (
