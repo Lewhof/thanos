@@ -8,6 +8,7 @@ import GroupNode from './GroupNode'
 import DatabaseNode from './DatabaseNode'
 import CloudNode from './CloudNode'
 import ActorNode from './ActorNode'
+import CommentNode from './CommentNode'
 
 export const nodeTypes = {
   default: DefaultNode,
@@ -20,4 +21,5 @@ export const nodeTypes = {
   database: DatabaseNode,
   cloud: CloudNode,
   actor: ActorNode,
+  comment: CommentNode,
 } as const

@@ -123,9 +123,68 @@
         "src/components/diagrams/nodes/GroupNode.tsx",
         "src/app/(app)/diagrams/[id]/DiagramEditor.tsx"
       ]
+    },
+    {
+      "id": "F-13",
+      "name": "AI Diagramming",
+      "description": "Toolbar AI button opens modal; user types prompt, Gemini generates nodes+edges JSON via /api/diagrams/ai-generate; inserted with dagre auto-layout",
+      "passes": true,
+      "files": [
+        "src/app/api/diagrams/ai-generate/route.ts",
+        "src/components/diagrams/AiGenerateModal.tsx"
+      ]
+    },
+    {
+      "id": "F-14",
+      "name": "Templates",
+      "description": "Templates button opens modal with 4 pre-built templates (Flowchart, ERD, Sequence, Org Chart); click loads onto canvas",
+      "passes": true,
+      "files": [
+        "src/lib/diagram-templates.ts",
+        "src/components/diagrams/TemplatesModal.tsx"
+      ]
+    },
+    {
+      "id": "F-15",
+      "name": "Collaboration (Supabase Realtime)",
+      "description": "useRealtimeSync hook broadcasts node/edge changes via Supabase channel; presence tracking shows collaborator avatars in toolbar; 500ms debounce",
+      "passes": true,
+      "files": [
+        "src/hooks/use-realtime-sync.ts",
+        "src/components/diagrams/CollaboratorAvatars.tsx"
+      ]
+    },
+    {
+      "id": "F-16",
+      "name": "Smart Connectors",
+      "description": "isValidConnection prevents self-loops and duplicate edges; all new edges default to smoothstep; inline edge label popover on connect",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/EdgeLabelPopover.tsx",
+        "src/app/(app)/diagrams/[id]/DiagramEditor.tsx"
+      ]
+    },
+    {
+      "id": "F-17",
+      "name": "Comments",
+      "description": "CommentNode (yellow sticky, author/timestamp, double-click edit, no connection handles); Add Comment toolbar button; collapsible Comments panel listing all comments",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/nodes/CommentNode.tsx",
+        "src/components/diagrams/CommentsPanel.tsx"
+      ]
+    },
+    {
+      "id": "F-18",
+      "name": "Presentation Mode",
+      "description": "Present button enters full-screen overlay; prev/next/exit controls + keyboard arrows; auto-zoom/pan to each node; slide counter; slideIndex on node data for custom order",
+      "passes": true,
+      "files": [
+        "src/components/diagrams/PresentationMode.tsx"
+      ]
     }
   ],
   "build_passes": true,
-  "total_features": 12,
-  "passing_features": 12
+  "total_features": 18,
+  "passing_features": 18
 }

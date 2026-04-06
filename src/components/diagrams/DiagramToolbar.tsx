@@ -5,11 +5,22 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { ArrowLeft, Undo2, Redo2, Maximize2, Download, Map, Sun, Moon, Grid3X3, Copy, FileImage } from 'lucide-react'
+import {
+  ArrowLeft, Undo2, Redo2, Maximize2, Download, Map, Sun, Moon, Grid3X3,
+  Copy, FileImage, Sparkles, LayoutTemplate, MessageSquare, Presentation,
+} from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import SaveStatusBadge from './SaveStatusBadge'
+import CollaboratorAvatars from './CollaboratorAvatars'
 import type { SaveStatus } from '@/lib/diagram-types'
+
+interface Collaborator {
+  userId: string
+  displayName: string
+  initials: string
+  color: string
+}
 
 interface DiagramToolbarProps {
   diagramId: string
@@ -20,6 +31,8 @@ interface DiagramToolbarProps {
   showMinimap: boolean
   snapToGrid: boolean
   colorMode: 'dark' | 'light'
+  collaborators?: Collaborator[]
+  presentationActive?: boolean
   onUndo: () => void
   onRedo: () => void
   onFitView: () => void
@@ -29,6 +42,11 @@ interface DiagramToolbarProps {
   onToggleSnapToGrid: () => void
   onToggleColorMode: () => void
   onTitleChange: (title: string) => Promise<void>
+  onAiGenerate?: () => void
+  onTemplates?: () => void
+  onAddComment?: () => void
+  onTogglePresentation?: () => void
+  onToggleComments?: () => void
 }
 
 export default function DiagramToolbar({
@@ -39,6 +57,8 @@ export default function DiagramToolbar({
   showMinimap,
   snapToGrid,
   colorMode,
+  collaborators = [],
+  presentationActive = false,
   onUndo,
   onRedo,
   onFitView,
@@ -48,6 +68,11 @@ export default function DiagramToolbar({
   onToggleSnapToGrid,
   onToggleColorMode,
   onTitleChange,
+  onAiGenerate,
+  onTemplates,
+  onAddComment,
+  onTogglePresentation,
+  onToggleComments,
 }: DiagramToolbarProps) {
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleValue, setTitleValue] = useState(title)
@@ -114,6 +139,44 @@ export default function DiagramToolbar({
 
       {/* Right: actions — scrollable on mobile */}
       <div className="flex items-center gap-1 shrink-0">
+        {/* Collaborators */}
+        {collaborators.length > 0 && (
+          <>
+            <CollaboratorAvatars collaborators={collaborators} />
+            <Separator orientation="vertical" className="h-5 mx-1" />
+          </>
+        )}
+
+        {/* AI Generate */}
+        {onAiGenerate && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1 text-xs text-purple-400 hover:text-purple-300"
+            onClick={onAiGenerate}
+            title="AI Generate Diagram"
+          >
+            <Sparkles size={14} />
+            <span className="hidden md:inline">AI</span>
+          </Button>
+        )}
+
+        {/* Templates */}
+        {onTemplates && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1 text-xs"
+            onClick={onTemplates}
+            title="Diagram Templates"
+          >
+            <LayoutTemplate size={14} />
+            <span className="hidden md:inline">Templates</span>
+          </Button>
+        )}
+
+        <Separator orientation="vertical" className="h-5 mx-1" />
+
         <Button
           variant="ghost"
           size="sm"
@@ -171,6 +234,48 @@ export default function DiagramToolbar({
         >
           {colorMode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </Button>
+        <Separator orientation="vertical" className="h-5 mx-1" />
+
+        {/* Comments */}
+        {onAddComment && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1 text-xs text-yellow-400 hover:text-yellow-300"
+            onClick={onAddComment}
+            title="Add Comment"
+          >
+            <MessageSquare size={14} />
+            <span className="hidden md:inline">Comment</span>
+          </Button>
+        )}
+
+        {onToggleComments && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-1.5 text-xs text-muted-foreground"
+            onClick={onToggleComments}
+            title="Toggle Comments Panel"
+          >
+            Panel
+          </Button>
+        )}
+
+        {/* Present */}
+        {onTogglePresentation && (
+          <Button
+            variant={presentationActive ? 'secondary' : 'ghost'}
+            size="sm"
+            className="h-7 px-2 gap-1 text-xs"
+            onClick={onTogglePresentation}
+            title="Presentation Mode"
+          >
+            <Presentation size={14} />
+            <span className="hidden md:inline">Present</span>
+          </Button>
+        )}
+
         <Separator orientation="vertical" className="h-5 mx-1" />
         {/* Export dropdown */}
         <Popover>

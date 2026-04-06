@@ -10,7 +10,24 @@ export interface DiagramRow {
   updated_at: string
 }
 
-export type AppNode = Node<{ label: string; color?: string }>
+export interface CommentNodeData extends Record<string, unknown> {
+  label: string
+  text: string
+  author: string
+  createdAt: string
+  color?: string
+  slideIndex?: number
+}
+
+export interface StandardNodeData extends Record<string, unknown> {
+  label: string
+  color?: string
+  slideIndex?: number
+}
+
+export type AppNode =
+  | Node<StandardNodeData>
+  | Node<CommentNodeData>
 
 export type AppEdge = Edge
 
